@@ -7,7 +7,7 @@ url_forecast = "https://api.open-meteo.com/v1/forecast"
 def main() -> None:
     while True:
         try:
-            input_option = ("(M)in Max Daily - (F)orecast - (C)urrent Temperature - (Q)uit - (R)estart: ").strip().lower()
+            input_option = input("(M)in Max Daily - (F)orecast - (C)urrent Temperature - (Q)uit - (R)estart: ").strip().lower()
             city_name = input("City name: ").strip()
             latitude, longitude = get_location(city_name)
 
@@ -22,8 +22,8 @@ def main() -> None:
             if input_option == "c":
                 print(f"The current temperature is {get_current_temp(latitude, longitude)} Celcius!")
 
-            # if input_option == "r":
-            #     main()
+            if input_option == "r":
+                main()
 
             if input_option == "q":
                 print("Shutdown...")
