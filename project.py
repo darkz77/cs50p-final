@@ -5,29 +5,37 @@ from tabulate import tabulate
 url_forecast = "https://api.open-meteo.com/v1/forecast"
 
 def main() -> None:
+    """
+    Docstring for main
+
+    Collect input option from the user before return the desired option
+    """
     while True:
         try:
-            input_option = input("(M)in Max Daily - (F)orecast - (C)urrent Temperature - (Q)uit - (R)estart: ").strip().lower()
+            input_option = input("(M)in Max Daily - (F)orecast - (C)urrent Temperature - (Q)uit: ").strip().lower()
+
+            if input_option == "q":
+                print("Shutdown...")
+                sys.exit(0)
+
+            if input_option not in ("m", "f", "c"):
+                print("Invalid option")
+                continue
+
             city_name = input("City name: ").strip()
             latitude, longitude = get_location(city_name)
 
             if input_option == "m":
                 result, headers = get_min_max(latitude, longitude)
-                generate_table(result, headers)
+                print(generate_table(result, headers))
 
-            if input_option == "f":
-                result, headers = get_forecast()
-                generate_table(result, headers)
+            elif input_option == "f":
+                result, headers = get_forecast(latitude, longitude)
+                print(generate_table(result, headers))
 
-            if input_option == "c":
+            elif input_option == "c":
                 print(f"The current temperature is {get_current_temp(latitude, longitude)} Celcius!")
 
-            if input_option == "r":
-                main()
-
-            if input_option == "q":
-                print("Shutdown...")
-                sys.exit(0)
 
         except ValueError:
             continue
@@ -85,8 +93,8 @@ def get_min_max(latitude: float, longitude: float):
 
     if data["daily"]:
         time = data["daily"]["time"]
-        min = data["daily"]["apparent_temperature_min"]
-        max = data["daily"]["apparent_temperature_max"]
+        min = data["daily"]["temperature_2m_min"]
+        max = data["daily"]["temperature_2m_max"]
         result = list(zip(time, min, max))
         headers = ["Time", "Min apparent temperature", "Max apparent temperature"]
         return result, headers
@@ -105,12 +113,6 @@ def get_forecast(latitude: float, longitude: float) -> dict:
     :return: number of days to return the weather forecast. Default 7 days, maximum 16 days
     :rtype: dict
     """
-    params = {
-        "latitude": latitude,
-        "longitude": longitude,
-        "hourly": "temperature_2m",
-        "forecast_days": forecast_days
-    }
     while True:
         try:
             forecast_days = int(input("Number of days: ").strip())
@@ -119,13 +121,19 @@ def get_forecast(latitude: float, longitude: float) -> dict:
         except ValueError:
             print("Invalid number!")
             continue
+    
+    params = {
+        "latitude": latitude,
+        "longitude": longitude,
+        "hourly": "temperature_2m",
+        "forecast_days": forecast_days
+    }
+
 
     response = requests.get(url_forecast, params=params)
     response.raise_for_status()
     data = response.json()
 
-    if data["error"]:
-        print(data["reason"])
     if data["hourly"]:
         time = data["hourly"]["time"]
         temperature = data["hourly"]["temperature_2m"]
