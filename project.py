@@ -2,23 +2,52 @@ import requests
 import sys
 from tabulate import tabulate
 
+url_forecast = "https://api.open-meteo.com/v1/forecast"
 
 def main():
-    city_name = input("City name: ").strip()
-    latitude, longitude = get_location(city_name)
-    print(latitude, longitude)
+    """
+    Docstring for main
+    
+    :return: Description
+    :rtype: Any
+    """
+    while True:
+        try:
+            input_option = ("(M)in Max Daily - (F)orecast - (C)urrent Temperature - (Q)uit: ").strip().lower()
+            city_name = input("City name: ").strip()
+            latitude, longitude = get_location(city_name)
 
-    forecast_table = get_current_temp(latitude, longitude)
-    print(f"Current temperature is {forecast_table}°C")
+            if input_option == "m":
+                result, headers = get_min_max(latitude, longitude)
+                generate_table(result, headers)
+
+            if input_option == "f":
+                result, headers = get_forecast()
+                generate_table(result, headers)
+
+            if input_option == "c":
+                print(f"The current temperature is {get_current_temp(latitude, longitude)} Celcius!")
+
+            if input_option == "r":
+                main()
+
+            if input_option == "q":
+                print("Shutdown...")
+                sys.exit(0)
+
+        except ValueError:
+            continue
     
 
 
-def get_location(city_name: str) -> ():
+def get_location(city_name: str):
     """
     This function will search the city using Open Meteo's Search API
-    Then return the latitude and longitude of the 1st city found
-        input - city name: str
-        return - tuple with 2 values of latitude and logitude
+
+    :param city_name: Name of city you want to search
+    :type city_name: str
+    :return: Description
+    :rtype: Any
     """
     params = {
         "name": city_name,
@@ -42,16 +71,46 @@ def get_location(city_name: str) -> ():
 
 
 def get_min_max(latitude: float, longitude: float):
-    ...
+    """
+    Docstring for get_min_max
+    
+    :param latitude: Location's latitude
+    :type latitude: float
+    :param longitude: Location's longitude
+    :type longitude: float
+    :return: Description
+    :rtype: Any
+    """
+    params = {
+        "latitude": latitude,
+        "longitude": longitude,
+        "daily": ["temperature_2m_max", "temperature_2m_min"]
+    }
+    response = requests.get(url_forecast, params=params)
+    response.raise_for_status()
+    data = response.json()
+
+    if data["daily"]:
+        time = data["daily"]["time"]
+        min = data["daily"]["apparent_temperature_min"]
+        max = data["daily"]["apparent_temperature_max"]
+        result = list(zip(time, min, max))
+        headers = ["Time", "Min apparent temperature", "Max apparent temperature"]
+        return result, headers
 
 
-def get_forecast(latitude: float, longitude: float, forecast_days: int) -> dict:
+def get_forecast(latitude: float, longitude: float) -> dict:
     """
     This function return a table of forecast for 2m height from Open Meteo's forecast API
-        Input:
-        latitude: float - The location's latitude
-        longitude: float - The location's longitude
-        forecast_days: int - number of days to return the weather forecast. Default 7 days, maximum 16 days
+
+    :param latitude: Location's latitude
+    :type latitude: float
+    :param longitude: Location's longitude
+    :type longitude: float
+    :param forecast_days: Description
+    :type forecast_days: int
+    :return: number of days to return the weather forecast. Default 7 days, maximum 16 days
+    :rtype: dict
     """
     params = {
         "latitude": latitude,
@@ -59,24 +118,46 @@ def get_forecast(latitude: float, longitude: float, forecast_days: int) -> dict:
         "hourly": "temperature_2m",
         "forecast_days": forecast_days
     }
-    response = requests.get("https://api.open-meteo.com/v1/forecast", params=params)
+    while True:
+        try:
+            forecast_days = int(input("Number of days: ").strip())
+            break
+
+        except ValueError:
+            print("Invalid number!")
+            continue
+
+    response = requests.get(url_forecast, params=params)
     response.raise_for_status()
     data = response.json()
 
     if data["error"]:
         print(data["reason"])
     if data["hourly"]:
-        return data["hourly"]
-    return None
+        time = data["hourly"]["time"]
+        temperature = data["hourly"]["temperature_2m"]
+        result = list(zip(time, temperature))
+        headers = ["Time", "Temperature"]
+        return result, headers
 
 
 def get_current_temp(latitude: float, longitude: float) -> str:
+    """
+    Docstring for get_current_temp
+    
+    :param latitude: Location's latitude
+    :type latitude: float
+    :param longitude: Location's longitude
+    :type longitude: float
+    :return: a str of current temperature
+    :rtype: str
+    """
     params = {
         "latitude": latitude,
         "longitude": longitude,
         "current": "temperature_2m",
     }
-    response = requests.get("https://api.open-meteo.com/v1/forecast", params=params)
+    response = requests.get(url_forecast, params=params)
     response.raise_for_status()
     data = response.json()
 
@@ -84,17 +165,16 @@ def get_current_temp(latitude: float, longitude: float) -> str:
         return data["current"]["temperature_2m"]
 
 
-def generate_table(dict: dict):
+def generate_table(result, headers):
     """
-    This function format the returned forecast data to a readable table format using Tabulate
-        input: dict - A dict json returned from Open Meteo's API
-        return: A formatted table using Tabulate
+    Docstring for generate_table
+
+    :param result: Description
+    :param headers: Description
+    :return: Description
+    :rtype: str
     """
-    time = dict["time"]
-    temperature = dict["temperature_2m"]
-    result = list(zip(time, temperature))
-    headers = ["Time", "Temperature in C"]
-    return tabulate(result, headers=headers, floatfmt="grid")
+    return tabulate(result, headers=headers, tablefmt="grid")
 
 
 if __name__ == "__main__":
