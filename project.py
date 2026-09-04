@@ -108,7 +108,7 @@ def get_min_max(latitude: float, longitude: float):
         min = data["daily"]["temperature_2m_min"]
         max = data["daily"]["temperature_2m_max"]
         result = list(zip(time, min, max))
-        headers = ["Time", "Min apparent temperature", "Max apparent temperature"]
+        headers = ["Time", "Min temperature 2m", "Max temperature 2m"]
         return result, headers
 
 
