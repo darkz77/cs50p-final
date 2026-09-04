@@ -28,7 +28,7 @@ e. *get_current_temp* - This function just simply get the current temperature of
 f. *generate_table* - A function to call tabulate and return a formatted table for other results.
 All of these temperature returns in Celsius.
 
-3. Unit test approach
+### Unit test approach
 This project uses pytest to perform unit test. I tested 3 functions in *project.py* and all test cases are written in *test_project.py*
 a. *test_get_location* - This script is used to test get_location function. This is rather simple to do the unit test since it will returns 2 floats for latitude and longitude. The pytest.approx() is used to compare the floats with assert approximately.
 b. *test_get_min_max* - This script is used to test get_min_max() function. It is a bit more difficult compare to get_location since it requires to mock the JSON data returns from Open Meteo's API. I need to dig deeper into request function and how to mock API data in order to write unit test for this function.
