@@ -1,5 +1,7 @@
-from project import get_location
 import pytest
+from project import get_location
+from unittest.mock import patch
+
 
 def test_get_location():
     ## assert 2 float latitde longitude for "Berlin"
@@ -8,8 +10,9 @@ def test_get_location():
     assert longitude == pytest.approx(13.41053)
 
 
-def test_get_min_max():
-    pass
+@patch("project.fetch_forecast_api")
+def test_get_min_max_success(mock_fetch):
+    mock_fetch.return_value
 
 
 def fetch_forecast_api():
