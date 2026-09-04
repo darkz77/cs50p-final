@@ -39,6 +39,21 @@ def main() -> None:
 
         except ValueError:
             continue
+
+
+def fetch_forecast_api(params: dict):
+    """
+    Docstring for fetch_forecast_api
+
+    :param params: a dict of params feed to Open Meteo's forecast API
+    :type params: dict
+    :return: a JSON file for other function to process
+    :rtype: Any
+    """
+    response = requests.get(url_forecast, params=params)
+    response.raise_for_status()
+    data = response.json()
+    return data
     
 
 def get_location(city_name: str):
@@ -87,9 +102,7 @@ def get_min_max(latitude: float, longitude: float):
         "longitude": longitude,
         "daily": ["temperature_2m_max", "temperature_2m_min"]
     }
-    response = requests.get(url_forecast, params=params)
-    response.raise_for_status()
-    data = response.json()
+    data = fetch_forecast_api(params)
 
     if data["daily"]:
         time = data["daily"]["time"]
@@ -128,11 +141,7 @@ def get_forecast(latitude: float, longitude: float) -> dict:
         "hourly": "temperature_2m",
         "forecast_days": forecast_days
     }
-
-
-    response = requests.get(url_forecast, params=params)
-    response.raise_for_status()
-    data = response.json()
+    data = fetch_forecast_api(params)
 
     if data["hourly"]:
         time = data["hourly"]["time"]
@@ -158,9 +167,7 @@ def get_current_temp(latitude: float, longitude: float) -> str:
         "longitude": longitude,
         "current": "temperature_2m",
     }
-    response = requests.get(url_forecast, params=params)
-    response.raise_for_status()
-    data = response.json()
+    data = fetch_forecast_api(params)
 
     if data["current"]:
         return data["current"]["temperature_2m"]
@@ -170,9 +177,9 @@ def generate_table(result, headers):
     """
     Docstring for generate_table
 
-    :param result: Description
-    :param headers: Description
-    :return: Description
+    :param result: list to generate table
+    :param headers: headers' title
+    :return: a CLI formatted table to show the result
     :rtype: str
     """
     return tabulate(result, headers=headers, tablefmt="grid")
