@@ -29,13 +29,12 @@ def main() -> None:
                 result, headers = get_min_max(latitude, longitude)
                 print(generate_table(result, headers))
 
-            elif input_option == "f":
+            if input_option == "f":
                 result, headers = get_forecast(latitude, longitude)
                 print(generate_table(result, headers))
 
-            elif input_option == "c":
+            if input_option == "c":
                 print(f"The current temperature is {get_current_temp(latitude, longitude)} Celcius!")
-
 
         except ValueError:
             continue
