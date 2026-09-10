@@ -1,13 +1,13 @@
 # Ask Temperature CLI
 
-### Video Demo: <URL HERE>
+### Video Demo: <URL https://www.youtube.com/watch?v=BBIHg1ZiymU>
 
 ### Author:
 **Name**: Nguyen Minh Hoang
 **Github**: darkz77
 **edX**: ngmhoang202@gmail.com
 **City * Country**: Da Nang - Vietnam
-**Date of publish**: TBD
+**Date of publish**: September 10, 2026
 
 ### Description - What is Ask Weather CLI?
 **Ask Temperature CLI** is a simple tool for you to quickly check the temperature of your city. 
