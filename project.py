@@ -72,7 +72,7 @@ def get_location(city_name: str):
     }
     response = requests.get("https://geocoding-api.open-meteo.com/v1/search", params=params)
     response.raise_for_status()
-    try :
+    try:
         data = response.json()
         results = data["results"]
     except KeyError:
@@ -164,7 +164,7 @@ def get_current_temp(latitude: float, longitude: float) -> str:
     params = {
         "latitude": latitude,
         "longitude": longitude,
-        "current": "temperature_2m",
+        "current": "temperature_2m"
     }
     data = fetch_forecast_api(params)
 
